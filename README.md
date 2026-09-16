@@ -180,7 +180,7 @@ Give a specific workload AWS permissions.
 ```
 
 ## gitops flow 
-
+```
 Developer
     │
     ▼
@@ -211,3 +211,68 @@ GitHub Actions
               │
               ▼
              EKS
+
+```
+
+## Stack
+
+| Layer | Tool | Why |
+|---|---|---|
+| Containerization | Docker (multi-stage builds) | Reproducible builds; frontend build/serve split keeps the final image lean |
+| Registry | Amazon ECR | Private, IAM-integrated, natural fit for EKS node pulls |
+| CI | GitHub Actions | Already where the code lives; build, scan, push |
+| IaC | Terraform (modular: `vpc`, `eks`, `ecr`, `irsa-alb`, `monitoring`) | Reproducible, environment-parameterized (`dev`/`prod`) infrastructure, remote state (S3 + DynamoDB locking) |
+| Orchestration | Amazon EKS (managed node group) | Managed control plane, AWS handles patching; I control node sizing/scaling |
+| Packaging | Helm | Templated Kubernetes manifests — one chart, environment-specific values |
+| GitOps / CD | Argo CD | Git is the single source of truth; pull-based delivery, no cluster credentials in CI |
+| Ingress | AWS Load Balancer Controller | Kubernetes-native `Ingress` → real ALB, IRSA-scoped permissions |
+| Monitoring | Prometheus + Grafana (`kube-prometheus-stack`) | Cluster + infra metrics out of the box; backend instrumented with `prom-client` for app-level metrics |
+| Security (in progress) | Trivy, Sealed Secrets, NetworkPolicies, restricted EKS endpoint, OIDC-based CI auth | See [Security](#security) below |
+
+## Repository structure
+
+```
+.
+├── app/                        
+│   ├── backend/                 
+│   └── frontend/               
+├── terraform/
+│   ├── modules/
+│   │   ├── vpc/                  
+│   │   ├── eks/                 
+│   │   ├── ecr/                
+│   │   ├── irsa-alb/          
+│   │   └── monitoring/       
+│   └── environments/
+│       ├── dev/
+│       └── prod/            
+├── helm/                   
+│   └── templates/         
+├── argocd/
+│   └── application.yaml  
+├── kubernetes/         
+├── .github/workflows/ci.yml    
+└── docs/                      
+
+```
+
+## How it works, end to end
+
+1. Push to `main` triggers CI: both images are built, scanned with Trivy, and pushed to ECR tagged by git SHA.
+2. CI then edits `helm/values.yaml` with the new tags and pushes that change back to the repo — this is the *only* thing CI does that resembles "deployment." It never touches the cluster directly.
+3. Argo CD, running in-cluster, detects the Git change and syncs automatically (`selfHeal` + `prune` enabled — manual `kubectl`/`helm` changes against the cluster get reverted back to match Git).
+4. The AWS Load Balancer Controller watches the chart's `Ingress` object and provisions/updates a real ALB.
+5. Prometheus scrapes cluster and application metrics continuously; Grafana visualizes them.
+
+---
+
+## in production I would do:
+
+- NAT Gateway per AZ for true HA
+- A separate GitOps config repo, decoupled from application source
+- TLS via `cert-manager`, custom domain via Route 53
+- Application logs aggregation (Loki/ELK) — this project covers metrics only, not logs, by design
+- Full completion of the security hardening pass above
+- applying security on each layer 
+
+---
