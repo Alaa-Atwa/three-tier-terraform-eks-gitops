@@ -1,11 +1,11 @@
 # actual values for the helm  templates
 namespace: three-tier
-backend: 
-  replicaCount: 2 
+backend:
+  replicaCount: 2
   port: 8080
   image:
     repository: 970460117753.dkr.ecr.us-east-1.amazonaws.com/backend-app
-    tag: 0d04eee7fbd300af99b7c86d8cbe9adbba7a4296
+    tag: b4e37bf1b8e3d78b47c62d3deab7be127fc81218
     # separating the tag enables the ci pipeline to update the tag.
   resources:
     requests:
@@ -14,13 +14,12 @@ backend:
     limits:
       cpu: "250m"
       memory: "256Mi"
-
 frontend:
   replicaCount: 2
   port: 80
   image:
     repository: 970460117753.dkr.ecr.us-east-1.amazonaws.com/frontend-app
-    tag: 0d04eee7fbd300af99b7c86d8cbe9adbba7a4296
+    tag: b4e37bf1b8e3d78b47c62d3deab7be127fc81218
   resources:
     requests:
       cpu: "100m"
