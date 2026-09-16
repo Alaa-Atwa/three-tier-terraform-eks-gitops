@@ -5,7 +5,7 @@ backend:
   port: 8080
   image:
     repository: 970460117753.dkr.ecr.us-east-1.amazonaws.com/backend-app
-    tag: 14a0e4e770e62b6c344c159da3a07791e447dfff
+    tag: 4435669d6e0022b752a3ea1d8bd59b163314bdc0
     # separating the tag enables the ci pipeline to update the tag.
   resources:
     requests:
@@ -19,7 +19,7 @@ frontend:
   port: 80
   image:
     repository: 970460117753.dkr.ecr.us-east-1.amazonaws.com/frontend-app
-    tag: 14a0e4e770e62b6c344c159da3a07791e447dfff
+    tag: 4435669d6e0022b752a3ea1d8bd59b163314bdc0
   resources:
     requests:
       cpu: "100m"
