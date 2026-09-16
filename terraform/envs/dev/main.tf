@@ -30,3 +30,8 @@ module "ecr" {
   backend_repository_name  = "backend-app"
   frontend_repository_name = "frontend-app"
 }
+
+module "irsa_alb"{
+  source = "../../modules/irsa-alb"
+  cluster_name = module.eks.dev-eks
+}

@@ -137,3 +137,23 @@ kubectl apply -f argocd/application.yaml
 kubectl get applications -n argocd
 
 # 9. apply some changes in helm/values.yaml 
+
+##################################################################################### 
+
+# install the service account and controller 
+kubectl apply -f kubernetes/alb-controller-serviceaccount.yaml
+
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=dev-eks \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set vpcId=fdsajl239dsskj
+
+################## monitoring ############################
+cd app/backend 
+npm install prom-client 
+
