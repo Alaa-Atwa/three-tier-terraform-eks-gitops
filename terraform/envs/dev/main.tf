@@ -33,5 +33,9 @@ module "ecr" {
 
 module "irsa_alb"{
   source = "../../modules/irsa-alb"
-  cluster_name = module.eks.dev-eks
+  cluster_name = "dev-eks"
+}
+
+module "monitoring" {
+  source = "../../modules/monitoring"
 }

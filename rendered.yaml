@@ -1,4 +1,5 @@
 ---
+# rendered when testing helm 
 # Source: three-tier/templates/backend-secret.yaml
 # at install time:
 #   helm install three-tier ./helm -n three-tier \

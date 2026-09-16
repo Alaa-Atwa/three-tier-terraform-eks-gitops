@@ -1,0 +1,18 @@
+grafana:
+  adminPassword: "changeme"
+  service:
+    type: ClusterIP  # reached via port-forward for now.
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "256Mi"
+      limits:
+        cpu: "250m"
+        memory: "512Mi"
+    retention: 3d  # short retention for demo purposes, and the project is small 

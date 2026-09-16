@@ -1,0 +1,16 @@
+# this for app monintoring 
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: backend
+  namespace: {{ .Values.namespace }}
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  endpoints:
+    - port: "http"
+      path: /metrics
+      interval: 30s
